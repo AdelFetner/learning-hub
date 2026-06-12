@@ -1,0 +1,2 @@
+# Local Claude Code permission overrides — machine-specific, never shared.
+.claude/settings.local.json
