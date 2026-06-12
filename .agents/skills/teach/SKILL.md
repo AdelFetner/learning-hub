@@ -16,6 +16,7 @@ Treat the current directory as a teaching workspace. The state of their learning
 - `RESOURCES.md`: A list of resources which can be explored to ground your teaching in contextual knowledge, or to acquire knowledge and wisdom. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
 - `./learning-records/*.md`: A directory of learning records, which capture what the user has learned. These are loosely equivalent to architectural decision records in software development - they capture non-obvious lessons and key insights that may need to be revised later, or drive future sessions. These should be used to calculate the zone of proximal development. They are titled `0001-<dash-case-name>.md`, where the number increments each time. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
 - `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
+- `ANKI.md`: The workspace's Anki state - deck name, card provenance, pending cards, and the user's Anki preferences. Use the format in [ANKI-FORMAT.md](./ANKI-FORMAT.md).
 - `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
 
 ## Philosophy
@@ -40,7 +41,7 @@ You should be careful to split between two types of learning:
 Fluency can give the user an illusory sense of mastery, but storage strength is the real goal. Try to design lessons which build long-term retention by desirable difficulty:
 
 - Using retrieval practice (recall from memory)
-- Spacing (distributing practice over time)
+- Spacing (distributing practice over time - delegated to Anki, see [Spaced Repetition](#spaced-repetition-anki))
 - Interleaving (mixing up different but related topics in practice - for skills practice only)
 
 ## Lessons
@@ -99,6 +100,41 @@ For skill acquisition, difficulty is the tool. Effortful retrieval is what build
 Each of these should be based on a **feedback loop**, where the user receives feedback on their performance. This feedback loop should be as tight as possible, giving feedback immediately - and ideally automatically.
 
 For quizzes, each answer should be exactly the same number of words (and characters, if possible). Don't give the user any clues about the answer through formatting.
+
+## Spaced Repetition (Anki)
+
+Storage strength needs spacing, and spacing needs a scheduler. That scheduler is **Anki**, reached through the Anki MCP server (which runs inside the Anki app). You create the cards; Anki owns the spacing. Workspace state lives in `ANKI.md` - use the format in [ANKI-FORMAT.md](./ANKI-FORMAT.md).
+
+If `ANKI.md` records that the user has opted out of Anki, skip everything in this section.
+
+### At session start
+
+If the Anki MCP server is reachable, read the workspace deck's state - due counts, lapses, FSRS memory state - and factor weak cards into the zone of proximal development, alongside the learning records.
+
+- First flush any pending cards queued in `ANKI.md`: add them to Anki, record their note IDs in the provenance map, clear the queue.
+- A card that keeps lapsing (a leech) is evidence of a misconception. Trace it to its source lesson or glossary term via the provenance map, and re-teach that material using a _different_ mental model than the original lesson. When the misconception resolves, write a learning record.
+
+### Creating cards: propose, then confirm
+
+When the user completes a lesson, or a term is promoted to the glossary, draft cards and present them for approval. The user can approve, edit, or drop each card. Never add a card to Anki without approval.
+
+Card rules:
+
+- Card only what the user has demonstrably understood. Coverage is not learning - the same bar as glossary promotion.
+- One fact per card (the minimum information principle).
+- Use built-in note types: Cloze for syntax and sequences; Basic (and reversed card) for term ↔ definition pairs; Basic for one-directional facts.
+- Don't give clues about the answer through formatting - the same rule as quizzes.
+- Tag every note `teach::{workspace-slug}` plus its source: `lesson-NNNN` or `glossary`.
+
+Cards go in the workspace deck `Teach::{Topic}`, created lazily on the first approved card. Record every added note's ID and source in the `ANKI.md` provenance map.
+
+### Reviews happen in Anki
+
+Never rate cards yourself. Reviews belong in the Anki app, on Anki's schedule - two schedulers fighting over the same cards corrupts the memory state you rely on at session start. If due cards exist, direct the user to review them in Anki.
+
+### When Anki is unreachable
+
+If the MCP server is unreachable (Anki closed, add-on missing), say so once, then continue teaching as normal. Park approved cards in the `ANKI.md` pending queue, and flush it the next time the server is reachable.
 
 ## Acquiring Wisdom
 
