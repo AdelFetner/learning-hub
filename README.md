@@ -6,7 +6,7 @@ You tell the AI what you want to learn and *why*. It finds high-trust resources,
 
 ## Setup
 
-You need three things: Anki, one Anki add-on, and [Claude Code](https://claude.com/claude-code).
+You need three things: Anki, one Anki add-on, and an AI coding agent. The walkthrough below uses [Claude Code](https://claude.com/claude-code), but the repo isn't tied to it — see [Using another AI agent](#using-another-ai-agent).
 
 1. **Install Anki** — version 25.07 or newer, from [apps.ankiweb.net](https://apps.ankiweb.net/). (Check yours in Anki under Help → About.)
 2. **Install the Anki MCP Server add-on**: in Anki, open **Tools → Add-ons → Get Add-ons…**, paste the code **`124672614`**, click OK, then **restart Anki**. That's it — the add-on runs automatically whenever Anki is open.
@@ -39,6 +39,49 @@ The teacher will interview you about your mission, gather resources, and build y
 
 Keep Anki open while you learn. When you finish a lesson, the teacher proposes flashcards for what you've learned — approve, edit, or drop each one. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
 
+## Using another AI agent
+
+Nothing here is tied to one AI provider. All learning state is plain files in each topic folder, the teach skill lives in the tool-neutral [`.agents/skills/`](.agents/skills/) directory (the [Agent Skills](https://agentskills.io/) convention), cross-tool instructions live in [`AGENTS.md`](AGENTS.md) (the [AGENTS.md](https://agents.md/) convention), and the Anki add-on is a standard MCP server at `http://127.0.0.1:3141/`. Registration files for the popular agents are already committed, so for most tools it's clone-and-go — different people can even use different agents against the same clone.
+
+| Agent | Anki MCP server | How it finds the teacher |
+|---|---|---|
+| [Claude Code](https://claude.com/claude-code) | [`.mcp.json`](.mcp.json) (approve once when asked) | `/teach` — skill discovered via `.claude/skills/`, plus `CLAUDE.md` → `AGENTS.md` |
+| [opencode](https://opencode.ai/) | [`opencode.json`](opencode.json) | discovers the skill natively from `.agents/skills/`; reads `AGENTS.md` |
+| [Codex CLI](https://developers.openai.com/codex/) | [`.codex/config.toml`](.codex/config.toml) (trusted projects only) | reads `AGENTS.md` |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | [`.gemini/settings.json`](.gemini/settings.json) | reads `AGENTS.md` |
+| [Cursor](https://cursor.com/) | [`.cursor/mcp.json`](.cursor/mcp.json) | reads `AGENTS.md` |
+| [VS Code / Copilot](https://code.visualstudio.com/docs/copilot/customization/mcp-servers) | [`.vscode/mcp.json`](.vscode/mcp.json) | reads `AGENTS.md` |
+| [Windsurf](https://windsurf.com/) | global config only — see below | reads `AGENTS.md` |
+
+Most tools ask you to approve or trust a project's MCP servers the first time — say yes to `anki`.
+
+<details>
+<summary><b>Windsurf</b> (no per-project MCP file)</summary>
+
+Windsurf only reads MCP servers from your user-level config. Open **Windsurf Settings → Cascade → MCP Servers** (or edit `~/.codeium/windsurf/mcp_config.json`) and add:
+
+```json
+{
+  "mcpServers": {
+    "anki": { "serverUrl": "http://127.0.0.1:3141/" }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Any other agent</b></summary>
+
+Two steps, whatever the tool:
+
+1. Point its MCP configuration at `http://127.0.0.1:3141/` (HTTP / streamable-HTTP transport, no auth).
+2. Make sure it reads [`AGENTS.md`](AGENTS.md) — or load [`.agents/skills/teach/SKILL.md`](.agents/skills/teach/SKILL.md) as a skill or instruction file directly.
+
+Everything else — formats, the card-approval flow, Anki state — is described in the skill itself.
+
+</details>
+
 ## Troubleshooting
 
 - **"Anki isn't reachable" / cards are being queued** — the MCP server only runs while the Anki app is open. Open Anki and the queued cards will be added at the start of your next session.
@@ -48,5 +91,7 @@ Keep Anki open while you learn. When you finish a lesson, the teacher proposes f
 ## How this repo is put together
 
 - `.agents/skills/teach/` — the teach skill (installed from [mattpocock/skills](https://github.com/mattpocock/skills)), customized here with a Spaced Repetition section and an [ANKI-FORMAT.md](.agents/skills/teach/ANKI-FORMAT.md). Note: because of this customization, `SKILL.md` no longer matches the hash in `skills-lock.json` — a future `skills.sh` update may flag or overwrite it.
-- `.mcp.json` — registers the Anki MCP server (`http://127.0.0.1:3141/`, the add-on's local address) for every Claude Code session in this repo.
+- `.claude/skills/` — pointer skills for Claude Code. Each is a real directory whose `SKILL.md` delegates to the canonical copy in `.agents/skills/` (real files instead of git symlinks, so Windows checkouts work without Developer Mode).
+- `AGENTS.md` / `CLAUDE.md` — cross-tool agent instructions; `CLAUDE.md` just imports `AGENTS.md` for Claude Code.
+- `.mcp.json`, `opencode.json`, `.codex/config.toml`, `.gemini/settings.json`, `.cursor/mcp.json`, `.vscode/mcp.json` — the same Anki MCP server (`http://127.0.0.1:3141/`, the add-on's local address) registered once per agent (see [Using another AI agent](#using-another-ai-agent)).
 - `openspec/` — the spec-driven change history of this repo, managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec).

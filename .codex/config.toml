@@ -1,0 +1,4 @@
+# Anki MCP server registration for OpenAI Codex CLI.
+# Read from trusted projects; the server runs inside the Anki desktop app while it is open.
+[mcp_servers.anki]
+url = "http://127.0.0.1:3141/"
