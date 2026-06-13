@@ -2,7 +2,7 @@
 
 **Stateful learning** — augmented via [Matt Pocock's teach skill](https://www.aihero.dev/learn-anything-with-my-teach-skill) and the [Anki MCP Server](https://github.com/ankimcp/anki-mcp-server-addon).
 
-You tell the AI what you want to learn and *why*. It finds high-trust resources, builds short interactive lessons aimed at your zone of proximal development, and remembers everything between sessions — like a real one-to-one teacher. On top of that, this repo connects the teacher to [Anki](https://apps.ankiweb.net/): when you've genuinely understood something, it proposes flashcards (you approve each one), Anki schedules the spaced repetition, and at the start of every session the teacher reads your review stats to see what's sticking and what needs re-teaching.
+You tell the AI what you want to learn and *why*. It finds high-trust resources, builds short interactive lessons aimed at your zone of proximal development, and remembers everything between sessions — like a real one-to-one teacher. On top of that, this repo connects the teacher to [Anki](https://apps.ankiweb.net/): each lesson creates flashcards for what it taught (you can edit or drop any), Anki schedules the spaced repetition, and at the start of every session the teacher reads your review stats to see what's sticking and what needs re-teaching.
 
 ## Setup
 
@@ -22,10 +22,10 @@ You need three things: Anki, one Anki add-on, and an AI coding agent. The walkth
 
 ## Learning something
 
-Each topic gets its own folder (one mission per workspace):
+Each topic gets its own folder under `topics/` (one mission per topic):
 
 ```bash
-mkdir rubiks-cube && cd rubiks-cube
+mkdir -p topics/rubiks-cube && cd topics/rubiks-cube
 claude
 ```
 
@@ -35,7 +35,7 @@ Then just say:
 /teach me how to solve a Rubik's cube
 ```
 
-The teacher will interview you about your mission, gather resources, and build your first lesson. Next session, run `/teach` again — it picks up exactly where you left off.
+The teacher will interview you about your mission, gather resources, and build your first lesson. Next session, run `/teach` again from the same folder — it picks up exactly where you left off. (Keeping topics under `topics/` is also what lets the optional [Monimemo](#browse-your-lessons-with-monimemo-optional) hub find them.)
 
 Keep Anki open while you learn. Every lesson adds its flashcards to an Anki deck named after the topic — each topic gets its own separate deck — and lists them at the end of the lesson. Ask the teacher to edit or remove any card you don't like. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
 
@@ -82,9 +82,9 @@ Everything else — formats, the card-approval flow, Anki state — is described
 
 </details>
 
-## Browse your lessons (optional)
+## Browse your lessons with Monimemo (optional)
 
-Everything above works on its own — agent, HTML lessons, Anki. If you'd also like a pretty place to browse it all, the repo includes a small local web **hub** (Next.js) that reads your `topics/` folder and shows your topics, lessons, references, learning records, and live Anki review stats.
+Everything above works on its own — agent, HTML lessons, Anki. If you'd also like a pretty place to browse it all, the repo includes **Monimemo** — a small local web hub (Next.js) that reads your `topics/` folder and shows your topics, lessons, references, learning records, and live Anki review stats.
 
 It's entirely optional and additive: it lives in [`hub/`](hub/), needs [Node.js](https://nodejs.org/) 20 or newer, and changes nothing about the core workflow. Skip it and you lose nothing.
 
@@ -104,9 +104,10 @@ Then open <http://localhost:3000>. It reads files live — new lessons appear on
 
 ## How this repo is put together
 
+- `topics/` — **your learning lives here.** One folder per topic, each holding its mission, lessons, references, learning records, and Anki state. Created as you go (see [Learning something](#learning-something)); empty in a fresh clone.
 - `.agents/skills/teach/` — the teach skill (installed from [mattpocock/skills](https://github.com/mattpocock/skills)), customized here with a Spaced Repetition section and an [ANKI-FORMAT.md](.agents/skills/teach/ANKI-FORMAT.md). Note: because of this customization, `SKILL.md` no longer matches the hash in `skills-lock.json` — a future `skills.sh` update may flag or overwrite it.
 - `.claude/skills/` — pointer skills for Claude Code. Each is a real directory whose `SKILL.md` delegates to the canonical copy in `.agents/skills/` (real files instead of git symlinks, so Windows checkouts work without Developer Mode).
 - `AGENTS.md` / `CLAUDE.md` — cross-tool agent instructions; `CLAUDE.md` just imports `AGENTS.md` for Claude Code.
 - `.mcp.json`, `opencode.json`, `.codex/config.toml`, `.gemini/settings.json`, `.cursor/mcp.json`, `.vscode/mcp.json` — the same Anki MCP server (`http://127.0.0.1:3141/`, the add-on's local address) registered once per agent (see [Using another AI agent](#using-another-ai-agent)).
-- `hub/` — the optional local lesson-browser web app (Next.js). A read-only viewer over `topics/`; see [Browse your lessons](#browse-your-lessons-optional). Not required for the core workflow.
+- `hub/` — **Monimemo**, the optional local lesson-browser web app (Next.js). A read-only viewer over `topics/`; see [Browse your lessons with Monimemo](#browse-your-lessons-with-monimemo-optional). Not required for the core workflow.
 - `openspec/` — the spec-driven change history of this repo, managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec).
