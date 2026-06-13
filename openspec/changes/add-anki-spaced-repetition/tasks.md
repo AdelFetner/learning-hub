@@ -18,7 +18,7 @@
 ## 4. Verification
 
 - [ ] 4.1 With Anki open and the add-on installed: `claude mcp list` (or tool search) shows the `anki` server's tools from `http://127.0.0.1:3141/`.
-- [ ] 4.2 In a fresh workspace directory, run `/teach` on a small topic, complete a mini lesson, approve the proposed cards; verify in Anki that deck `Teach::{Topic}` exists and the notes carry the `teach::{workspace-slug}` and `lesson-NNNN` tags.
+- [ ] 4.2 In a fresh workspace directory, run `/teach` on a small topic, complete a mini lesson with its cards; verify in Anki that the top-level `{Topic}` deck exists and the notes carry the `teach::{workspace-slug}` and `lesson-NNNN` tags.
 - [ ] 4.3 Start a second session; verify the agent reads due/lapse state at session start and mentions it in its diagnosis.
 - [ ] 4.4 Close Anki and run `/teach`; verify the single degradation message and that approved cards land in the `ANKI.md` pending queue, then reopen Anki and verify the queue flushes.
 - [ ] 4.5 After user testing, mark tasks complete and offer `openspec archive add-anki-spaced-repetition`.

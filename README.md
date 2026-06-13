@@ -37,7 +37,7 @@ Then just say:
 
 The teacher will interview you about your mission, gather resources, and build your first lesson. Next session, run `/teach` again — it picks up exactly where you left off.
 
-Keep Anki open while you learn. When you finish a lesson, the teacher proposes flashcards for what you've learned — approve, edit, or drop each one. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
+Keep Anki open while you learn. Every lesson adds its flashcards to an Anki deck named after the topic — each topic gets its own separate deck — and lists them at the end of the lesson. Ask the teacher to edit or remove any card you don't like. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
 
 ## Using another AI agent
 

@@ -60,6 +60,8 @@ Each lesson should recommend a primary source for the user to read or watch. Thi
 
 Each lesson should contain a reminder to ask followup questions to the agent. The agent is their teacher, and can assist with anything that's unclear.
 
+Each lesson should end with a **Cards from this lesson** section listing the Anki cards created for it, and a reminder that reviews happen in the Anki app (see [Spaced Repetition](#spaced-repetition-anki)).
+
 ## The Mission
 
 Every lesson should be tied into the mission - the reason that the user is interested in learning about the topic.
@@ -114,19 +116,19 @@ If the Anki MCP server is reachable, read the workspace deck's state - due count
 - First flush any pending cards queued in `ANKI.md`: add them to Anki, record their note IDs in the provenance map, clear the queue.
 - A card that keeps lapsing (a leech) is evidence of a misconception. Trace it to its source lesson or glossary term via the provenance map, and re-teach that material using a _different_ mental model than the original lesson. When the misconception resolves, write a learning record.
 
-### Creating cards: propose, then confirm
+### Creating cards: with the lesson
 
-When the user completes a lesson, or a term is promoted to the glossary, draft cards and present them for approval. The user can approve, edit, or drop each card. Never add a card to Anki without approval.
+Cards are part of the lesson, not an afterthought. When you generate a lesson (or promote a term to the glossary), draft its cards in the same breath and add them to Anki immediately - no approval round. End every lesson HTML with a **Cards from this lesson** section listing them, plus a reminder that reviews happen in the Anki app. The user can ask to edit or remove any card at any time; honor that immediately and mirror it in `ANKI.md`.
 
 Card rules:
 
-- Card only what the user has demonstrably understood. Coverage is not learning - the same bar as glossary promotion.
 - One fact per card (the minimum information principle).
+- Card the lesson's key facts. A misconception that slips into a card is not a disaster: it will surface as a lapsing card, and the leech loop above catches it.
 - Use built-in note types: Cloze for syntax and sequences; Basic (and reversed card) for term ↔ definition pairs; Basic for one-directional facts.
 - Don't give clues about the answer through formatting - the same rule as quizzes.
 - Tag every note `teach::{workspace-slug}` plus its source: `lesson-NNNN` or `glossary`.
 
-Cards go in the workspace deck `Teach::{Topic}`, created lazily on the first approved card. Record every added note's ID and source in the `ANKI.md` provenance map.
+Cards go in the workspace deck `{Topic}` - a top-level deck named after the topic. Never group topics under a shared parent deck (no `Teach::` prefix); each topic's deck stands alone in Anki's deck list. Create it lazily with the first lesson's cards, and record every added note's ID and source in the `ANKI.md` provenance map.
 
 ### Reviews happen in Anki
 
@@ -134,7 +136,7 @@ Never rate cards yourself. Reviews belong in the Anki app, on Anki's schedule - 
 
 ### When Anki is unreachable
 
-If the MCP server is unreachable (Anki closed, add-on missing), say so once, then continue teaching as normal. Park approved cards in the `ANKI.md` pending queue, and flush it the next time the server is reachable.
+If the MCP server is unreachable (Anki closed, add-on missing), say so once, then continue teaching as normal. Park new cards in the `ANKI.md` pending queue, and flush it the next time the server is reachable.
 
 ## Acquiring Wisdom
 

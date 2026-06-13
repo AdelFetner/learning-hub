@@ -8,7 +8,7 @@ The teach skill is a set of Markdown instruction files consumed by Claude Code (
 
 **Goals**
 - Operationalize the skill's existing storage-strength philosophy with real spaced repetition.
-- Keep the learner in control: nothing reaches Anki without explicit approval.
+- Keep cards integrated with lessons: every lesson ships with its cards, and the learner can edit or remove any card on request.
 - Degrade gracefully — the skill must work unchanged when Anki is closed or absent.
 - Pass the "girlfriend test": a non-developer can set the whole thing up from the README.
 
@@ -21,8 +21,8 @@ The teach skill is a set of Markdown instruction files consumed by Claude Code (
 
 ## Decisions
 
-### Deck per workspace: `Teach::{Topic}`
-One Anki deck per teaching workspace, named `Teach::{Topic}` (e.g. `Teach::Rust`), created lazily via `create_deck` on the first approved card. The `Teach::` prefix groups all teach decks under one parent in Anki's deck tree and makes due-count queries per workspace trivial.
+### Deck per workspace: top-level `{Topic}`
+One Anki deck per teaching workspace, named after the topic (e.g. `Rust`, `HTTP Status Codes`) at the top level of Anki's deck tree, created lazily with the first lesson's cards. Topics are never grouped under a shared parent deck — a `Teach::` prefix was tried during verification and rejected by the learner: a parent deck visually groups unrelated topics and studying it would interleave them. Per-workspace queries stay trivial via the deck name and the `teach::{workspace-slug}` tag.
 
 ### Built-in note types only
 Cards use Anki's stock note types: **Basic**, **Basic (and reversed card)**, and **Cloze**. Selection rule: cloze for syntax, sequences, and fill-in-the-structure material; basic/reversed for term ↔ definition pairs (glossary promotions); plain basic for one-directional facts. No `create_model` in v1 — custom styled note types are a future enhancement.
@@ -30,8 +30,8 @@ Cards use Anki's stock note types: **Basic**, **Basic (and reversed card)**, and
 ### Tag provenance, mirrored in `ANKI.md`
 Every note is tagged `teach::{workspace-slug}` plus a source tag: `lesson-NNNN` (matching the lesson file number) or `glossary`. This makes `find_notes` queries by source possible from Anki's side. The `ANKI.md` provenance table (note ID, source, date) is the human-readable mirror on the workspace side, and is what lets a lapsing card be traced back to the lesson that produced it for re-teaching.
 
-### Propose → confirm card flow
-The agent drafts cards at two trigger points — lesson completion and glossary-term promotion — and presents them as plain text for approval (edit/drop/approve per card) before calling `add_notes`. Card quality rules: minimum-information principle (one fact per card); no formatting clues in answers (extends the existing quiz rule in SKILL.md). Only material with demonstrated understanding is carded, mirroring the glossary's "add a term only when the user understands it" promotion rule.
+### Cards ship with the lesson
+The agent creates cards at two trigger points — lesson generation and glossary-term promotion — and adds them to Anki immediately, with no approval round; every lesson HTML ends with a "Cards from this lesson" section listing them. The learner can ask to edit or remove any card at any time. Card quality rules: minimum-information principle (one fact per card); no formatting clues in answers (extends the existing quiz rule in SKILL.md). A v1 propose→confirm flow gated on demonstrated understanding was implemented first and replaced by learner decision during verification (2026-06-12): the learner wants cards to be part of the lesson artifact from the start, accepting that an occasional misconception gets carded — the leech → re-teach loop is the corrective.
 
 ### Review boundary: Anki owns spacing
 The agent reads state (`get_due_cards`, lapse counts, `get_card_memory_state`) and writes cards, but never rates cards during a teach session. Reviews happen in the Anki app on Anki's schedule. Rationale: two schedulers fighting over the same cards corrupts FSRS's signal; the memory state the agent reads at session start is only trustworthy if Anki's scheduler is the sole writer of review history.
@@ -55,5 +55,5 @@ Editing `.agents/skills/teach/SKILL.md` changes its hash versus `skills-lock.jso
 ## Risks / Mitigations
 
 - **Anki version churn** (add-on requires Anki ≥ 25.07, MCP tool names may evolve) → README pins the minimum version; skill instructions reference tools by intent ("read due counts") with current tool names as hints, so small renames don't break the flow.
-- **Card overload** (agent proposes too many cards, learner rubber-stamps) → minimum-information principle plus the demonstrated-understanding gate keep volume low; the learner approves each card individually.
+- **Card overload** (agent cards too much per lesson) → minimum-information principle plus deliberately small lessons keep volume low; the learner can edit or remove any card, and lapse data prunes what isn't working.
 - **Stale pending queue** (learner opts out mid-stream, queue grows) → `ANKI.md` records an explicit opt-out preference; when set, the agent stops proposing cards and the queue is dropped with the learner's confirmation.

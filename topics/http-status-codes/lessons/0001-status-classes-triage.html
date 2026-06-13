@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0001 — The Five Classes: Status-Code Triage</title>
+<style>
+  :root { --ink:#1a1a1a; --muted:#6b6b6b; --rule:#d9d4c8; --accent:#8c2d19;
+          --bg:#fffef9; --good:#1d6b35; --bad:#9c2b1d; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 5rem; background:var(--bg); color:var(--ink);
+         font:19px/1.6 Georgia, 'Times New Roman', serif; }
+  main { max-width: 42rem; margin: 0 auto; }
+  .kicker { color:var(--muted); font-size:.85rem; letter-spacing:.12em; text-transform:uppercase; }
+  h1 { font-size:1.8rem; font-weight:normal; margin:.2rem 0 .4rem; }
+  .sub { color:var(--muted); font-style:italic; margin:0 0 2.2rem; }
+  h2 { font-size:1.2rem; font-weight:normal; border-bottom:1px solid var(--rule);
+       padding-bottom:.3rem; margin:2.4rem 0 1rem; }
+  p { margin:.8rem 0; }
+  table { border-collapse:collapse; width:100%; font-size:.92rem; margin:1rem 0; }
+  th { text-align:left; font-weight:normal; font-style:italic; color:var(--muted);
+       border-bottom:1px solid var(--rule); padding:.3rem .6rem .3rem 0; }
+  td { border-bottom:1px solid #efece3; padding:.45rem .6rem .45rem 0; vertical-align:top; }
+  .code, code { font-family:Consolas, monospace; font-size:.92em; }
+  .blame { color:var(--accent); }
+  aside { border-left:3px solid var(--rule); padding:.1rem 0 .1rem 1rem; margin:1.4rem 0;
+          color:#3d3d3d; font-size:.95rem; }
+  a { color:var(--accent); }
+  .q { margin:1.6rem 0; padding:1.1rem 1.2rem; border:1px solid var(--rule); border-radius:6px; background:#fffdf4; }
+  .q p { margin:0 0 .7rem; }
+  .opts { display:flex; gap:.6rem; flex-wrap:wrap; }
+  .opts button { font:inherit; font-family:Consolas, monospace; font-size:.95rem;
+       padding:.45rem 1.1rem; border:1px solid #b9b29f; border-radius:4px;
+       background:#fff; cursor:pointer; }
+  .opts button:hover { border-color:var(--accent); }
+  .opts button.right { background:#e7f3ea; border-color:var(--good); color:var(--good); }
+  .opts button.wrong { background:#f9e9e6; border-color:var(--bad); color:var(--bad); }
+  .why { display:none; margin-top:.7rem; font-size:.9rem; color:#3d3d3d; }
+  .q.answered .why { display:block; }
+  #score { display:none; margin-top:2rem; padding:1rem 1.2rem; border:1px solid var(--rule);
+           border-radius:6px; background:#f6f3e9; }
+  footer { margin-top:3rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--rule); padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0001 · HTTP Status-Code Classes</p>
+  <h1>The first digit tells you whose side to debug</h1>
+  <p class="sub">One triage rule, five classes, three confusable pairs. ~7 minutes.</p>
+
+  <h2>The one idea</h2>
+  <p>Every HTTP response carries a three-digit status code, and the classes are defined purely by the
+     <strong>first digit</strong> (<a href="https://www.rfc-editor.org/rfc/rfc9110#name-status-codes">RFC 9110 §15</a>).
+     When a request fails at work, you don't need the exact code first — the class alone tells you
+     <em>where to look</em>:</p>
+
+  <table>
+    <tr><th class="code">Range</th><th>Class (per <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status">MDN</a>)</th><th>Your debugging move</th></tr>
+    <tr><td class="code">1xx</td><td>Informational</td><td>Interim, not an outcome — you'll rarely meet one in logs.</td></tr>
+    <tr><td class="code">2xx</td><td>Success</td><td>The request worked. Bug still there? It's in the payload or your handling of it.</td></tr>
+    <tr><td class="code">3xx</td><td>Redirection</td><td>The answer is elsewhere — follow the <code>Location</code> header.</td></tr>
+    <tr><td class="code">4xx</td><td>Client error</td><td><span class="blame">Inspect the request</span>: URL, method, headers, auth, body.</td></tr>
+    <tr><td class="code">5xx</td><td>Server error</td><td><span class="blame">Inspect the server</span>: its logs, or the upstream it calls.</td></tr>
+  </table>
+
+  <aside>Memory hook: <strong>4 = you, 5 = them.</strong> A <code>4xx</code> says the caller sent something the
+  server can't or won't process; a <code>5xx</code> says the caller did fine and the server fell over anyway.</aside>
+
+  <h2>The three pairs people mix up</h2>
+  <p><strong><span class="code">401</span> vs <span class="code">403</span></strong> — <code>401 Unauthorized</code> really means
+     <em>unauthenticated</em>: "who are you?" — credentials are missing or invalid. <code>403 Forbidden</code> means
+     "I know exactly who you are, and you're not allowed." Fixing a 401 means logging in correctly;
+     fixing a 403 means changing permissions.</p>
+  <p><strong><span class="code">502</span> vs <span class="code">504</span></strong> — both come from a proxy/gateway blaming the
+     server behind it. <code>502 Bad Gateway</code>: the upstream <em>answered, badly</em> (invalid response).
+     <code>504 Gateway Timeout</code>: the upstream <em>never answered in time</em>. 502 → look for upstream crashes;
+     504 → look for slowness, deadlocks, network.</p>
+  <p><strong><span class="code">301</span> vs <span class="code">302</span></strong> — <code>301 Moved Permanently</code>: the new URL
+     is forever, and clients/caches may remember it aggressively. <code>302 Found</code>: it's elsewhere
+     <em>for now</em>; keep using the original URL next time.</p>
+
+  <h2>Retrieval practice</h2>
+  <p>Answer from memory — the table above earned its keep only if you can do this without scrolling up.</p>
+
+  <div class="q" data-a="0">
+    <p>1. Your service log shows a request that ended in <code>503</code>. Whose side do you investigate first?</p>
+    <div class="opts"><button>server</button><button>client</button><button>nobody</button></div>
+    <p class="why">5xx = server class: the server is alive but can't serve right now (overload or maintenance). The request was fine.</p>
+  </div>
+
+  <div class="q" data-a="1">
+    <p>2. An integration you call starts returning <code>422</code>. You've never seen that code. Which class — and so, whose bug?</p>
+    <div class="opts"><button>5xx, theirs</button><button>4xx, yours</button><button>3xx, nobody</button></div>
+    <p class="why">First digit 4 → client error class → inspect the request you sent, even if you've never met the specific code.</p>
+  </div>
+
+  <div class="q" data-a="2">
+    <p>3. The token is valid and the user is logged in, but they may not access this resource. Which code fits?</p>
+    <div class="opts"><button>401</button><button>404</button><button>403</button></div>
+    <p class="why">403 Forbidden = authenticated but not allowed. 401 would mean the credentials themselves are missing or invalid.</p>
+  </div>
+
+  <div class="q" data-a="0">
+    <p>4. The reverse proxy waited and waited; the app behind it never responded. Which code does the proxy return?</p>
+    <div class="opts"><button>504</button><button>502</button><button>500</button></div>
+    <p class="why">504 Gateway Timeout = upstream never answered in time. 502 would mean it answered with an invalid response.</p>
+  </div>
+
+  <div class="q" data-a="1">
+    <p>5. A <code>302</code> means the resource has moved how?</p>
+    <div class="opts"><button>permanently</button><button>temporarily</button><button>ambiguously</button></div>
+    <p class="why">302 Found = temporary — keep using the original URL. Permanent moves are 301, which caches may remember forever.</p>
+  </div>
+
+  <div id="score"></div>
+
+  <h2>Cards from this lesson</h2>
+  <p>These are in your Anki deck <strong>HTTP Status Codes</strong> — review them in the Anki app when they come due.
+     Don't like one? Ask your teacher to edit or remove it.</p>
+  <table>
+    <tr><th>Front</th><th>Back</th></tr>
+    <tr><td>4xx — what do you inspect first?</td><td>The request — URL, method, headers, auth, body</td></tr>
+    <tr><td>5xx — what do you inspect first?</td><td>The server — its logs, or the upstream it calls</td></tr>
+    <tr><td>502 Bad Gateway — what did the upstream do?</td><td>It answered, but with an invalid response</td></tr>
+    <tr><td>504 Gateway Timeout — what did the upstream do?</td><td>It never answered in time</td></tr>
+    <tr><td>Which redirect is cached aggressively?</td><td>301 Moved Permanently</td></tr>
+    <tr><td>302 Found — moved how?</td><td>Temporarily — keep using the original URL</td></tr>
+    <tr><td>401 Unauthorized — which step failed?</td><td>Authentication — credentials missing or invalid</td></tr>
+    <tr><td>403 Forbidden — which step failed?</td><td>Authorization — identity accepted, permission denied</td></tr>
+  </table>
+
+  <h2>Go deeper</h2>
+  <p>Primary source for this lesson: <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status">MDN — HTTP response status codes</a>.
+     Keep the <a href="../reference/http-status-triage.html">triage cheat sheet</a> nearby — it's printable.</p>
+
+  <footer>
+    Questions? Ask your teacher — the agent in this workspace can explain anything here from another angle,
+    with sources. When you're done, tell it how the quiz went.
+  </footer>
+</main>
+<script>
+  let answered = 0, correct = 0;
+  const qs = document.querySelectorAll('.q');
+  qs.forEach(q => {
+    const right = +q.dataset.a;
+    q.querySelectorAll('.opts button').forEach((b, i) => {
+      b.addEventListener('click', () => {
+        if (q.classList.contains('answered')) return;
+        q.classList.add('answered');
+        answered++;
+        if (i === right) { b.classList.add('right'); correct++; }
+        else { b.classList.add('wrong'); q.querySelectorAll('.opts button')[right].classList.add('right'); }
+        if (answered === qs.length) {
+          const s = document.getElementById('score');
+          s.style.display = 'block';
+          s.innerHTML = '<strong>' + correct + ' / ' + qs.length + '</strong> from memory. ' +
+            (correct === qs.length ? 'Solid. The cards below are already in Anki — they will keep it that way.'
+                                   : 'Tell the agent which ones felt shaky — it will re-explain them from another angle.');
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

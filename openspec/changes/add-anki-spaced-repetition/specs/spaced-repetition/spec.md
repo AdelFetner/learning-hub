@@ -6,34 +6,34 @@
 
 Each teaching workspace SHALL track its Anki integration state in an `ANKI.md` file at the workspace root, per `ANKI-FORMAT.md`: the workspace deck name, note-type choices, a provenance map (Anki note IDs ↔ source lesson or glossary term), a pending-cards queue, and user preferences including an Anki opt-out.
 
-#### Scenario: First approved card initializes state
+#### Scenario: First lesson's cards initialize state
 
-- **WHEN** the first card for a workspace is approved and no `ANKI.md` exists
-- **THEN** the agent SHALL create `ANKI.md` per `ANKI-FORMAT.md`, create the deck `Teach::{Topic}` in Anki, and record the new note IDs and their source in the provenance map
+- **WHEN** the first cards for a workspace are created and no `ANKI.md` exists
+- **THEN** the agent SHALL create `ANKI.md` per `ANKI-FORMAT.md`, create the top-level deck `{Topic}` in Anki (never nested under a shared parent deck), and record the new note IDs and their source in the provenance map
 
 #### Scenario: User has opted out
 
 - **WHEN** `ANKI.md` records that the user opted out of Anki
-- **THEN** the agent SHALL NOT propose cards or contact the Anki MCP server, and SHALL continue the traditional teach flow
+- **THEN** the agent SHALL NOT create cards or contact the Anki MCP server, and SHALL continue the traditional teach flow
 
-### Requirement: Card creation is propose-then-confirm
+### Requirement: Cards ship with the lesson
 
-WHEN a lesson is completed or a glossary term is promoted, the agent SHALL draft Anki cards and present them to the learner for approval, and SHALL NOT add any card to Anki without that approval. Cards SHALL be drafted only from material the learner has demonstrably understood, follow the minimum-information principle (one fact per card), use built-in note types (cloze for syntax and sequences, basic/reversed for term ↔ definition, basic otherwise), give no formatting clues to answers, and be tagged `teach::{workspace-slug}` plus `lesson-NNNN` or `glossary`.
+WHEN a lesson is generated or a glossary term is promoted, the agent SHALL create the corresponding Anki cards immediately and SHALL list them in a "Cards from this lesson" section at the end of the lesson HTML. The learner MAY ask to edit or remove any card at any time, and the agent SHALL honor that immediately, mirroring the change in `ANKI.md`. Cards SHALL follow the minimum-information principle (one fact per card), use built-in note types (cloze for syntax and sequences, basic/reversed for term ↔ definition, basic otherwise), give no formatting clues to answers, and be tagged `teach::{workspace-slug}` plus `lesson-NNNN` or `glossary`.
 
-#### Scenario: Lesson completion proposes cards
+#### Scenario: Lesson generation creates cards
 
-- **WHEN** the learner completes a lesson and demonstrates understanding of its content
-- **THEN** the agent SHALL draft cards for that content, present each for approval (approve, edit, or drop), and call `add_notes` only with the approved cards
+- **WHEN** the agent generates a lesson
+- **THEN** the agent SHALL create the lesson's cards via `add_notes` in the same step and list them at the end of the lesson HTML
 
-#### Scenario: Glossary promotion proposes a card
+#### Scenario: Glossary promotion creates a card
 
 - **WHEN** a term is promoted to `GLOSSARY.md`
-- **THEN** the agent SHALL propose a basic-and-reversed card pairing the term with its glossary definition, and add it only after approval
+- **THEN** the agent SHALL create a basic-and-reversed card pairing the term with its glossary definition
 
-#### Scenario: Material merely covered is not carded
+#### Scenario: Learner removes a card
 
-- **WHEN** a lesson introduced a concept but the learner has not yet demonstrated understanding of it
-- **THEN** the agent SHALL NOT propose cards for that concept
+- **WHEN** the learner asks to edit or remove a card
+- **THEN** the agent SHALL apply the change in Anki immediately and update the `ANKI.md` provenance map accordingly
 
 ### Requirement: Session-start feedback loop
 
@@ -60,12 +60,12 @@ Reviews SHALL happen in the Anki app. The agent SHALL read Anki state and create
 
 ### Requirement: Graceful degradation
 
-WHEN the Anki MCP server is unreachable (Anki closed or add-on missing), the agent SHALL state this once, continue the traditional teach flow, and park approved-but-unsent cards in the `ANKI.md` pending-cards queue. WHEN a later session finds the server reachable and the pending queue is non-empty, the agent SHALL flush the queue (add the cards, record provenance, clear the queue) before new teaching work.
+WHEN the Anki MCP server is unreachable (Anki closed or add-on missing), the agent SHALL state this once, continue the traditional teach flow, and park new cards in the `ANKI.md` pending-cards queue. WHEN a later session finds the server reachable and the pending queue is non-empty, the agent SHALL flush the queue (add the cards, record provenance, clear the queue) before new teaching work.
 
 #### Scenario: Anki closed during a session
 
-- **WHEN** the learner approves cards while the MCP server is unreachable
-- **THEN** the agent SHALL append the approved cards to the `ANKI.md` pending queue and mention the queueing once, without repeating the warning
+- **WHEN** a lesson's cards are created while the MCP server is unreachable
+- **THEN** the agent SHALL append the cards to the `ANKI.md` pending queue and mention the queueing once, without repeating the warning
 
 #### Scenario: Queue flush on reconnect
 
