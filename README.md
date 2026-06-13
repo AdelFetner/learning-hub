@@ -82,6 +82,20 @@ Everything else — formats, the card-approval flow, Anki state — is described
 
 </details>
 
+## Browse your lessons (optional)
+
+Everything above works on its own — agent, HTML lessons, Anki. If you'd also like a pretty place to browse it all, the repo includes a small local web **hub** (Next.js) that reads your `topics/` folder and shows your topics, lessons, references, learning records, and live Anki review stats.
+
+It's entirely optional and additive: it lives in [`hub/`](hub/), needs [Node.js](https://nodejs.org/) 20 or newer, and changes nothing about the core workflow. Skip it and you lose nothing.
+
+```bash
+cd hub
+npm install     # first time only
+npm run dev
+```
+
+Then open <http://localhost:3000>. It reads files live — new lessons appear on refresh, no rebuild. Keep Anki open to see review stats (it degrades gracefully to "Anki closed" otherwise). The hub is **read-only**: it never changes your lessons or your Anki cards.
+
 ## Troubleshooting
 
 - **"Anki isn't reachable" / cards are being queued** — the MCP server only runs while the Anki app is open. Open Anki and the queued cards will be added at the start of your next session.
@@ -94,4 +108,5 @@ Everything else — formats, the card-approval flow, Anki state — is described
 - `.claude/skills/` — pointer skills for Claude Code. Each is a real directory whose `SKILL.md` delegates to the canonical copy in `.agents/skills/` (real files instead of git symlinks, so Windows checkouts work without Developer Mode).
 - `AGENTS.md` / `CLAUDE.md` — cross-tool agent instructions; `CLAUDE.md` just imports `AGENTS.md` for Claude Code.
 - `.mcp.json`, `opencode.json`, `.codex/config.toml`, `.gemini/settings.json`, `.cursor/mcp.json`, `.vscode/mcp.json` — the same Anki MCP server (`http://127.0.0.1:3141/`, the add-on's local address) registered once per agent (see [Using another AI agent](#using-another-ai-agent)).
+- `hub/` — the optional local lesson-browser web app (Next.js). A read-only viewer over `topics/`; see [Browse your lessons](#browse-your-lessons-optional). Not required for the core workflow.
 - `openspec/` — the spec-driven change history of this repo, managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec).

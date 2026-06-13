@@ -23,3 +23,4 @@ Lessons accumulate as beautiful, self-contained HTML files under `topics/*/lesso
   - `AGENTS.md` — modified (one note).
 - No changes to the teach skill, `topics/` content formats, or the `spaced-repetition` capability; the hub is a pure reader of both.
 - Provider-agnostic by construction: the hub is a plain web app, independent of which AI agent generated the content.
+- **Fully optional and additive.** The original experience — agent CLI + HTML lessons + Anki — keeps working unchanged for users who never touch the hub. The hub lives entirely in `hub/`, requires Node only if run, and nothing in the base flow (teach skill, `topics/`, Anki setup) references or depends on it. Existing clones gain the hub by `git pull`; nothing they already do breaks.

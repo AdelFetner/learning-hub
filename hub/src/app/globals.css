@@ -1,0 +1,212 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Design tokens — "dashboard structure, editorial soul" (mock C).
+   Warm paper, ink, hairline rules, deep-red accent. Light only in v1;
+   the .dark block below is left as structure for a future dark theme. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: Georgia, "Times New Roman", Cambria, "Noto Serif", serif;
+  --font-mono: "Consolas", "SFMono-Regular", ui-monospace, "Liberation Mono", monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --radius: 0.25rem;
+
+  --background: #faf7f0; /* warm paper */
+  --foreground: #221f1a; /* ink */
+
+  --card: #fffdf7;
+  --card-foreground: #221f1a;
+  --popover: #fffdf7;
+  --popover-foreground: #221f1a;
+
+  --primary: #8c2d19; /* deep red — same accent as the lessons */
+  --primary-foreground: #faf7f0;
+
+  --secondary: #f0ebdd;
+  --secondary-foreground: #221f1a;
+
+  --muted: #f0ebdd;
+  --muted-foreground: #857d6e;
+
+  --accent: #f0ebdd;
+  --accent-foreground: #8c2d19;
+
+  --destructive: #9c2b1d;
+
+  --border: #e4ddcc; /* hairline */
+  --input: #e4ddcc;
+  --ring: #8c2d19;
+
+  --chart-1: #8c2d19;
+  --chart-2: #3f6b4f;
+  --chart-3: #a8632c;
+  --chart-4: #857d6e;
+  --chart-5: #221f1a;
+
+  --sidebar: #fffdf7;
+  --sidebar-foreground: #221f1a;
+  --sidebar-primary: #8c2d19;
+  --sidebar-primary-foreground: #faf7f0;
+  --sidebar-accent: #f0ebdd;
+  --sidebar-accent-foreground: #8c2d19;
+  --sidebar-border: #e4ddcc;
+  --sidebar-ring: #8c2d19;
+}
+
+/* Structure for a future dark theme — unused in v1 (no .dark class is set). */
+.dark {
+  --background: #1a1814;
+  --foreground: #ece7da;
+  --card: #221f1a;
+  --card-foreground: #ece7da;
+  --popover: #221f1a;
+  --popover-foreground: #ece7da;
+  --primary: #d4674e;
+  --primary-foreground: #1a1814;
+  --secondary: #2c2823;
+  --secondary-foreground: #ece7da;
+  --muted: #2c2823;
+  --muted-foreground: #a39a88;
+  --accent: #2c2823;
+  --accent-foreground: #d4674e;
+  --destructive: #d4674e;
+  --border: #332f28;
+  --input: #332f28;
+  --ring: #d4674e;
+  --sidebar: #221f1a;
+  --sidebar-foreground: #ece7da;
+  --sidebar-primary: #d4674e;
+  --sidebar-primary-foreground: #1a1814;
+  --sidebar-accent: #2c2823;
+  --sidebar-accent-foreground: #d4674e;
+  --sidebar-border: #332f28;
+  --sidebar-ring: #d4674e;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Monospace numerals where used (stats, lesson numbers, dates). */
+  .nums {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Rendered markdown (missions, learning records) — quiet editorial prose. */
+.doc {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--foreground);
+}
+.doc h1,
+.doc h2,
+.doc h3 {
+  font-weight: normal;
+  margin: 1.1em 0 0.4em;
+  line-height: 1.25;
+}
+.doc h1 {
+  font-size: 1.4rem;
+}
+.doc h2 {
+  font-size: 1.15rem;
+}
+.doc h3 {
+  font-size: 1rem;
+}
+.doc p {
+  margin: 0.7em 0;
+}
+.doc ul,
+.doc ol {
+  margin: 0.7em 0;
+  padding-left: 1.4em;
+  list-style: revert;
+}
+.doc li {
+  margin: 0.3em 0;
+}
+.doc a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.doc code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--secondary);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+.doc strong {
+  font-weight: 700;
+}
+.doc table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin: 0.8em 0;
+}
+.doc th,
+.doc td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.35em 0.8em 0.35em 0;
+  text-align: left;
+}
+.doc blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 1em;
+  color: var(--muted-foreground);
+  font-style: italic;
+}

@@ -24,6 +24,9 @@ The repo's content is plain files with stable conventions: `topics/{slug}/MISSIO
 ### Two routes in v1: overview + topic
 Only two real page types exist: the overview (`/`) and the per-topic page (`/topics/{topic}`), plus the lesson/reference viewer routes under a topic. The mock's sidebar items "Lessons / References / Learning records" are not separate global index pages in v1 — the topic page already lists all three for that topic. The sidebar keeps Overview and a list of topics; the other labels are deferred (a flat cross-topic index would look sparse with a handful of items per topic).
 
+### Optional and additive — the base experience is untouched
+The hub is strictly additive. Everything it needs is confined to `hub/` (its own `package.json`, `node_modules`, build output); Node is a prerequisite *only* for running it. Nothing outside `hub/` is modified except docs: the teach skill, the `topics/` formats, `.mcp.json`/`AGENTS.md` agent configs, and the Anki setup are unchanged. A user who only wants agent CLI + HTML lessons + Anki import ignores `hub/` entirely and loses nothing; an existing clone adds the hub with a `git pull` and no migration. The README presents the hub under a clearly optional section, after the core setup is already complete.
+
 ### App in `hub/`, local-only
 Latest stable Next.js (App Router, TypeScript) scaffolded into `hub/` with its own `package.json` and lockfile. Run with `npm run dev` (or `npm run build && npm start`); bound to localhost. Keeping it inside the repo means the content path is simply `../topics`, and a single clone carries content + viewer.
 

@@ -2,6 +2,20 @@
 
 ## ADDED Requirements
 
+### Requirement: The hub is optional and additive
+
+The hub SHALL be confined to `hub/` and SHALL NOT be required for the original experience (agent CLI + HTML lessons + Anki). The teach skill, the `topics/` content formats, the agent MCP/instruction configs, and the Anki setup SHALL function identically whether or not the hub is installed or run. Node SHALL be a prerequisite only for running the hub.
+
+#### Scenario: User never uses the hub
+
+- **WHEN** a user clones the repository and uses only the agent CLI, HTML lessons, and Anki, without installing or running anything in `hub/`
+- **THEN** every part of that flow SHALL work unchanged, and no instruction in the core setup SHALL require Node or the hub
+
+#### Scenario: Existing clone pulls the change
+
+- **WHEN** a user with an existing clone pulls this change
+- **THEN** their existing topics, lessons, and Anki integration SHALL continue to work with no migration step
+
 ### Requirement: Local hub application
 
 The repository SHALL contain a `hub/` Next.js application that runs locally (`npm run dev` inside `hub/`), binds to localhost, and reads all content from the repository's `topics/` directory at request time. Learning data SHALL NOT leave the machine.
