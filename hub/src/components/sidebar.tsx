@@ -8,7 +8,7 @@ export function Sidebar() {
   return (
     <aside className="w-[235px] shrink-0 border-r border-border px-4 py-6">
       <div className="px-2.5 text-[1.15rem]">
-        learning<span className="italic text-primary">hub</span>
+        Moni<span className="italic text-primary">memo</span>
       </div>
 
       <nav className="mt-7 flex flex-col">

@@ -16,7 +16,7 @@ export default function OverviewPage() {
 
   return (
     <Shell>
-      <h1 className="text-[1.9rem]">Your learning hub</h1>
+      <h1 className="text-[1.9rem]">Welcome back</h1>
       <p className="mt-1 text-[0.95rem] italic text-muted-foreground">
         {topics.length} {topics.length === 1 ? "topic" : "topics"} · {lessonTotal}{" "}
         {lessonTotal === 1 ? "lesson" : "lessons"}

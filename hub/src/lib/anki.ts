@@ -59,7 +59,7 @@ function toDeckStat(deck: Record<string, unknown>): DeckStat {
   const toStudy = newCount + learn + review;
   const resting = Math.max(0, total - toStudy);
   return {
-    name: String(deck.name ?? ""),
+    name: typeof deck.name === "string" ? deck.name : "",
     total,
     newCount,
     learn,
@@ -72,7 +72,7 @@ function toDeckStat(deck: Record<string, unknown>): DeckStat {
 
 async function query(): Promise<AnkiSnapshot> {
   const transport = new StreamableHTTPClientTransport(new URL(ANKI_URL));
-  const client = new Client({ name: "learning-hub", version: "1.0.0" });
+  const client = new Client({ name: "monimemo", version: "1.0.0" });
   try {
     await withTimeout(client.connect(transport), CONNECT_TIMEOUT_MS);
     const res = (await withTimeout(
@@ -110,7 +110,7 @@ async function query(): Promise<AnkiSnapshot> {
 export async function getAnkiSnapshot(): Promise<AnkiSnapshot> {
   const now = Date.now();
   if (cache && now - cache.at < CACHE_TTL_MS) return cache.value;
-  if (inflight) return inflight;
+  if (inflight !== null) return inflight;
   inflight = query()
     .then((value) => {
       cache = { at: Date.now(), value };

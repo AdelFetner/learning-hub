@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "learning-hub",
+  title: "Monimemo",
   description: "Browse your topics, lessons, and spaced-repetition state.",
 };
 
