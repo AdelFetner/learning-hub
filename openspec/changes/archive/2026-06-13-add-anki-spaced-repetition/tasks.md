@@ -17,8 +17,8 @@
 
 ## 4. Verification
 
-- [ ] 4.1 With Anki open and the add-on installed: `claude mcp list` (or tool search) shows the `anki` server's tools from `http://127.0.0.1:3141/`.
-- [ ] 4.2 In a fresh workspace directory, run `/teach` on a small topic, complete a mini lesson with its cards; verify in Anki that the top-level `{Topic}` deck exists and the notes carry the `teach::{workspace-slug}` and `lesson-NNNN` tags.
-- [ ] 4.3 Start a second session; verify the agent reads due/lapse state at session start and mentions it in its diagnosis.
-- [ ] 4.4 Close Anki and run `/teach`; verify the single degradation message and that approved cards land in the `ANKI.md` pending queue, then reopen Anki and verify the queue flushes.
-- [ ] 4.5 After user testing, mark tasks complete and offer `openspec archive add-anki-spaced-repetition`.
+- [x] 4.1 With Anki open and the add-on installed: `claude mcp list` (or tool search) shows the `anki` server's tools from `http://127.0.0.1:3141/`. (Verified 2026-06-12: server connected, tools callable; project server enabled via `.claude/settings.local.json`.)
+- [x] 4.2 In a fresh workspace directory, run `/teach` on a small topic, complete a mini lesson with its cards; verify in Anki that the top-level `{Topic}` deck exists and the notes carry the `teach::{workspace-slug}` and `lesson-NNNN` tags. (Verified 2026-06-12: `topics/http-status-codes/`, 8 notes in deck `HTTP Status Codes`, tags confirmed via `find_notes`/`notes_info`.)
+- [x] 4.3 Start a second session; verify the agent reads due/lapse state at session start and mentions it in its diagnosis. (Verified 2026-06-12: session-start read found 8 due cards and folded learning-record guidance into the diagnosis.)
+- [x] 4.4 Close Anki and run `/teach`; verify the single degradation message and that new cards land in the `ANKI.md` pending queue, then reopen Anki and verify the queue flushes. (Skipped live per user decision 2026-06-12 — degradation path not exercised; instructions and `ANKI.md` queue format are in place.)
+- [x] 4.5 After user testing, mark tasks complete and offer `openspec archive add-anki-spaced-repetition`.
