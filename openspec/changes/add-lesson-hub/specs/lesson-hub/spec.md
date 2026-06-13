@@ -32,7 +32,7 @@ Lesson and reference HTML files SHALL be served byte-identical to the files on d
 
 ### Requirement: Hub navigation
 
-The hub SHALL provide an overview page (summary stats, topic cards, recent lessons) and a per-topic page showing the topic's mission, its lessons in `NNNN` order, its reference documents, and its learning records.
+The hub SHALL provide an overview page (summary stats, topic cards, recent lessons) and a per-topic page showing the topic's mission, its lessons in `NNNN` order, its reference documents, and its learning records. The sidebar SHALL link the overview and each topic; flat cross-topic index pages are out of scope for v1.
 
 #### Scenario: Overview lists topics
 

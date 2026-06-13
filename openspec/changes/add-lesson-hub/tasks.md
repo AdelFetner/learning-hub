@@ -2,7 +2,8 @@
 
 ## 1. Scaffold
 
-- [ ] 1.1 Scaffold `hub/` with `create-next-app@latest` (TypeScript, App Router, Tailwind, ESLint); verify `npm run dev` serves the starter on localhost; pin the scaffolded versions.
+- [ ] 1.1 Scaffold `hub/` with `create-next-app@latest` (TypeScript, App Router, Tailwind, ESLint, npm); verify `npm run dev` serves the starter on localhost; pin the scaffolded versions; set `engines.node >= 20`.
+- [ ] 1.2 Init shadcn/ui and re-theme its tokens to Mock C (paper background, ink foreground, `#8c2d19` primary, ~4px radius, Georgia serif base, monospace numerals); add the components the UI tasks need (Sidebar, Card, Badge, Progress, Separator, Skeleton).
 
 ## 2. Content layer
 
@@ -23,7 +24,7 @@
 ## 5. UI (design per `mocks/mix.html`)
 
 - [ ] 5.1 Design tokens + layout components: paper/serif/hairline/red-accent palette, sidebar, stat tiles, topic cards with progress bars, lesson rows.
-- [ ] 5.2 Overview page: stat tiles (due cards, topics, lessons, total cards), topic card grid, recent lessons.
+- [ ] 5.2 Overview page: stat tiles (cards due, topics, lessons = file count, total cards in deck), topic card grid with retention-health bars, recent lessons (ordered by file mtime). No "completed" metric.
 - [ ] 5.3 Topic page: mission, ordered lessons, references, learning-records timeline, deck badge.
 
 ## 6. Docs
