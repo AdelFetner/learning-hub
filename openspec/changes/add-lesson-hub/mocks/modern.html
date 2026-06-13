@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOCK B — Modern Dashboard</title>
+<style>
+  :root { --bg:#0b0c0f; --panel:#13151a; --panel2:#181b22; --line:#23262f; --text:#e8eaf0;
+          --muted:#8b91a0; --accent:#7c6cf6; --accent2:#3dd6a3; --warn:#f6b86c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--text);
+         font:15px/1.55 Inter, 'Segoe UI', system-ui, sans-serif; display:flex; min-height:100vh; }
+  a { color:inherit; text-decoration:none; }
+
+  aside { width:230px; border-right:1px solid var(--line); padding:1.4rem 1rem; flex-shrink:0; }
+  .logo { font-weight:700; letter-spacing:-.02em; font-size:1.05rem; padding:0 .6rem; }
+  .logo span { color:var(--accent); }
+  nav { margin-top:1.6rem; display:flex; flex-direction:column; gap:.15rem; }
+  nav a { padding:.5rem .6rem; border-radius:8px; color:var(--muted); font-size:.92rem; }
+  nav a.active { background:var(--panel2); color:var(--text); }
+  nav a:hover { background:var(--panel); color:var(--text); }
+  .anki-pill { margin-top:2rem; padding:.8rem .9rem; border:1px solid var(--line); border-radius:12px;
+               background:linear-gradient(135deg, rgba(124,108,246,.12), rgba(61,214,163,.07)); font-size:.85rem; }
+  .anki-pill b { color:var(--accent2); }
+  .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent2); margin-right:.4rem; }
+
+  .main { flex:1; padding:2rem 2.4rem; max-width:1100px; }
+  h1 { font-size:1.5rem; letter-spacing:-.02em; font-weight:650; }
+  .sub { color:var(--muted); font-size:.92rem; margin-top:.2rem; }
+
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.6rem 0 2rem; }
+  .stat { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem; }
+  .stat .n { font-size:1.55rem; font-weight:650; letter-spacing:-.03em; }
+  .stat .l { color:var(--muted); font-size:.8rem; margin-top:.15rem; }
+  .stat.glow .n { color:var(--accent); }
+
+  h3 { font-size:.85rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:0 0 .8rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1rem; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:1.2rem 1.25rem;
+          transition:border-color .15s, transform .15s; }
+  .card:hover { border-color:#3a3f4d; transform:translateY(-2px); }
+  .card h2 { font-size:1.05rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+  .badge { font-size:.72rem; padding:.18rem .55rem; border-radius:99px; font-weight:600; }
+  .badge.due { background:rgba(124,108,246,.16); color:#a99cff; }
+  .badge.ok  { background:rgba(61,214,163,.13); color:var(--accent2); }
+  .card p { color:var(--muted); font-size:.86rem; margin:.55rem 0 .9rem; }
+  .bar { height:5px; border-radius:99px; background:var(--panel2); overflow:hidden; margin-bottom:.8rem; }
+  .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .row { display:flex; justify-content:space-between; color:var(--muted); font-size:.78rem; }
+
+  .lessons { margin-top:2.2rem; }
+  .lrow { display:flex; align-items:center; gap:1rem; background:var(--panel); border:1px solid var(--line);
+          border-radius:12px; padding:.7rem 1rem; margin-bottom:.55rem; font-size:.9rem; }
+  .lrow:hover { border-color:#3a3f4d; }
+  .num { font-family:Consolas, monospace; color:var(--muted); font-size:.78rem; }
+  .lrow .t { font-weight:550; }
+  .lrow .topic { color:var(--muted); font-size:.78rem; margin-left:auto; }
+  .lrow .cards { font-size:.74rem; color:#a99cff; white-space:nowrap; }
+</style>
+</head>
+<body>
+  <aside>
+    <div class="logo">learning<span>hub</span></div>
+    <nav>
+      <a class="active" href="#">Overview</a>
+      <a href="#">Topics</a>
+      <a href="#">Lessons</a>
+      <a href="#">References</a>
+      <a href="#">Learning records</a>
+    </nav>
+    <div class="anki-pill"><span class="dot"></span>Anki connected<br><b>8 cards due</b> today</div>
+  </aside>
+
+  <div class="main">
+    <h1>Welcome back, Bruno</h1>
+    <p class="sub">Three active topics · last lesson June 12</p>
+
+    <div class="stats">
+      <div class="stat glow"><div class="n">8</div><div class="l">cards due now</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">active topics</div></div>
+      <div class="stat"><div class="n">6</div><div class="l">lessons completed</div></div>
+      <div class="stat"><div class="n">35</div><div class="l">cards in Anki</div></div>
+    </div>
+
+    <h3>Topics</h3>
+    <div class="grid">
+      <a class="card" href="#">
+        <h2>HTTP Status Codes <span class="badge due">8 due</span></h2>
+        <p>Triage failing requests at a glance — the first digit says whose side the failure is on.</p>
+        <div class="bar"><i style="width:20%"></i></div>
+        <div class="row"><span>1 lesson · 1 reference</span><span>8 cards</span></div>
+      </a>
+      <a class="card" href="#">
+        <h2>Rubik's Cube <span class="badge ok">clear</span></h2>
+        <p>Any scramble under two minutes with the beginner's method, no notes in hand.</p>
+        <div class="bar"><i style="width:55%"></i></div>
+        <div class="row"><span>3 lessons · 2 references</span><span>15 cards</span></div>
+      </a>
+      <a class="card" href="#">
+        <h2>Go <span class="badge due">3 due</span></h2>
+        <p>Ship a small CLI at work in idiomatic Go — channels and errors without the fight.</p>
+        <div class="bar"><i style="width:35%"></i></div>
+        <div class="row"><span>2 lessons · 1 reference</span><span>12 cards</span></div>
+      </a>
+    </div>
+
+    <div class="lessons">
+      <h3>Recent lessons</h3>
+      <a class="lrow" href="#"><span class="num">0001</span><span class="t">The first digit tells you whose side to debug</span><span class="cards">8 cards</span><span class="topic">HTTP Status Codes · jun 12</span></a>
+      <a class="lrow" href="#"><span class="num">0003</span><span class="t">First-layer corners</span><span class="cards">5 cards</span><span class="topic">Rubik's Cube · jun 09</span></a>
+      <a class="lrow" href="#"><span class="num">0002</span><span class="t">Errors are values</span><span class="cards">7 cards</span><span class="topic">Go · jun 01</span></a>
+    </div>
+  </div>
+</body>
+</html>

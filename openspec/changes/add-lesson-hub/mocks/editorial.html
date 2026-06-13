@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOCK A — Editorial / Minimal</title>
+<style>
+  :root { --ink:#1c1b18; --muted:#7a7468; --rule:#e2dccd; --accent:#8c2d19; --bg:#fbf9f3; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font:19px/1.6 Georgia, 'Times New Roman', serif;
+         padding: 4rem 1.5rem 6rem; }
+  main { max-width: 46rem; margin:0 auto; }
+  .kicker { letter-spacing:.18em; text-transform:uppercase; font-size:.75rem; color:var(--muted); }
+  h1 { font-size:2.6rem; font-weight:normal; line-height:1.15; margin:.4rem 0 .6rem; }
+  .lede { font-style:italic; color:var(--muted); font-size:1.05rem; max-width:34rem; }
+  .anki { margin-top:1.6rem; font-size:.95rem; }
+  .anki b { color:var(--accent); font-weight:normal; }
+  hr { border:0; border-top:1px solid var(--rule); margin:3rem 0 0; }
+
+  .topic { padding:2.4rem 0 2.2rem; border-bottom:1px solid var(--rule); }
+  .topic-head { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+  h2 { font-size:1.6rem; font-weight:normal; }
+  h2 a { color:inherit; text-decoration:none; }
+  h2 a:hover { color:var(--accent); }
+  .due { font-size:.8rem; color:var(--accent); white-space:nowrap; }
+  .mission { color:var(--muted); font-size:.98rem; margin:.5rem 0 1.2rem; max-width:36rem; }
+  ol.lessons { list-style:none; counter-reset:l; }
+  ol.lessons li { counter-increment:l; padding:.55rem 0; border-top:1px dotted var(--rule);
+                  display:flex; gap:1rem; align-items:baseline; font-size:1.02rem; }
+  ol.lessons li::before { content:counter(l, decimal-leading-zero); font-size:.8rem; color:var(--muted);
+                           font-family:Consolas, monospace; }
+  ol.lessons a { color:inherit; text-decoration:none; border-bottom:1px solid var(--rule); }
+  ol.lessons a:hover { color:var(--accent); border-color:var(--accent); }
+  .meta { margin-left:auto; font-size:.8rem; color:var(--muted); font-style:italic; white-space:nowrap; }
+  .refs { font-size:.9rem; margin-top:1rem; color:var(--muted); }
+  .refs a { color:var(--accent); }
+  footer { margin-top:3rem; font-size:.85rem; color:var(--muted); font-style:italic; }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">learning-hub</p>
+  <h1>A library of everything<br>you're learning.</h1>
+  <p class="lede">Three topics, eleven lessons, one mission each. Lessons read like pages; Anki remembers them for you.</p>
+  <p class="anki">● Anki is open — <b>8 cards due</b> across your decks today.</p>
+
+  <hr>
+
+  <section class="topic">
+    <div class="topic-head">
+      <h2><a href="#">HTTP Status Codes</a></h2>
+      <span class="due">8 due</span>
+    </div>
+    <p class="mission">Triage failing requests at a glance: the first digit says whose side the failure is on, before reading a single log line.</p>
+    <ol class="lessons">
+      <li><a href="#">The first digit tells you whose side to debug</a><span class="meta">jun 12 · 8 cards</span></li>
+    </ol>
+    <p class="refs">Reference: <a href="#">HTTP status triage cheat sheet</a> · 1 learning record</p>
+  </section>
+
+  <section class="topic">
+    <div class="topic-head">
+      <h2><a href="#">Rubik's Cube</a></h2>
+      <span class="due" style="color:#7a7468">nothing due</span>
+    </div>
+    <p class="mission">Solve any scramble under two minutes with the beginner's method, no notes in hand.</p>
+    <ol class="lessons">
+      <li><a href="#">Notation: the six faces and their turns</a><span class="meta">jun 02 · 6 cards</span></li>
+      <li><a href="#">The white cross, intuitively</a><span class="meta">jun 05 · 4 cards</span></li>
+      <li><a href="#">First-layer corners</a><span class="meta">jun 09 · 5 cards</span></li>
+    </ol>
+    <p class="refs">Reference: <a href="#">Notation sheet</a>, <a href="#">Beginner algorithm list</a> · 3 learning records</p>
+  </section>
+
+  <section class="topic">
+    <div class="topic-head">
+      <h2><a href="#">Go</a></h2>
+      <span class="due">3 due</span>
+    </div>
+    <p class="mission">Ship a small CLI tool at work in idiomatic Go — channels and error handling without fighting the language.</p>
+    <ol class="lessons">
+      <li><a href="#">Hello, modules: project layout that scales</a><span class="meta">may 28 · 5 cards</span></li>
+      <li><a href="#">Errors are values</a><span class="meta">jun 01 · 7 cards</span></li>
+    </ol>
+    <p class="refs">Reference: <a href="#">Go error-handling patterns</a> · 2 learning records</p>
+  </section>
+
+  <footer>Served locally from <span style="font-family:Consolas,monospace;font-size:.8rem">topics/</span> — nothing leaves this machine.</footer>
+</main>
+</body>
+</html>
