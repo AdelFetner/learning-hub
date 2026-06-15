@@ -1,2 +1,10 @@
 # Local Claude Code permission overrides — machine-specific, never shared.
 .claude/settings.local.json
+
+# User learning data — private; the repo ships the product, not anyone's lessons.
+topics/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
