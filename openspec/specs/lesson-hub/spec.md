@@ -3,23 +3,9 @@
 ## Purpose
 TBD - created by archiving change add-lesson-hub. Update Purpose after archive.
 ## Requirements
-### Requirement: The hub is optional and additive
-
-The hub SHALL be confined to `hub/` and SHALL NOT be required for the original experience (agent CLI + HTML lessons + Anki). The teach skill, the `topics/` content formats, the agent MCP/instruction configs, and the Anki setup SHALL function identically whether or not the hub is installed or run. Node SHALL be a prerequisite only for running the hub.
-
-#### Scenario: User never uses the hub
-
-- **WHEN** a user clones the repository and uses only the agent CLI, HTML lessons, and Anki, without installing or running anything in `hub/`
-- **THEN** every part of that flow SHALL work unchanged, and no instruction in the core setup SHALL require Node or the hub
-
-#### Scenario: Existing clone pulls the change
-
-- **WHEN** a user with an existing clone pulls this change
-- **THEN** their existing topics, lessons, and Anki integration SHALL continue to work with no migration step
-
 ### Requirement: Local hub application
 
-The repository SHALL contain a `hub/` Next.js application that runs locally (`npm run dev` inside `hub/`), binds to localhost, and reads all content from the repository's `topics/` directory at request time. Learning data SHALL NOT leave the machine.
+The repository SHALL contain a `hub/` Next.js application that runs locally (`npm run dev` inside `hub/`), binds to localhost, and reads all content from the repository's `topics/` directory **at request time**. It is the primary interface for viewing lessons. Learning data SHALL NOT leave the machine, and `topics/` SHALL remain git-ignored (see "User learning data is private and untracked").
 
 #### Scenario: Fresh content without rebuild
 
@@ -30,20 +16,6 @@ The repository SHALL contain a `hub/` Next.js application that runs locally (`np
 
 - **WHEN** a user clones the repository on a machine with Node ≥ 20 and runs `npm install && npm run dev` inside `hub/`
 - **THEN** the hub SHALL serve their `topics/` content with no further configuration
-
-### Requirement: Lessons and references served verbatim
-
-Lesson and reference HTML files SHALL be served byte-identical to the files on disk via routes with slug parameters, and the hub SHALL present them inside a viewer that adds hub navigation without modifying the document. File access SHALL be restricted to `topics/{topic}/lessons/` and `topics/{topic}/reference/`.
-
-#### Scenario: Lesson renders as authored
-
-- **WHEN** the user opens a lesson through the hub
-- **THEN** the lesson SHALL render with its own styling and its interactive elements (quizzes) SHALL work, identical to opening the file directly, with a hub bar available to navigate back
-
-#### Scenario: Path traversal is blocked
-
-- **WHEN** a request's slug or file parameter resolves outside `topics/`
-- **THEN** the hub SHALL reject the request and serve no file content
 
 ### Requirement: Hub navigation
 
@@ -96,4 +68,32 @@ A user's learning data under `topics/` — missions, lessons, references, learni
 
 - **WHEN** a new user clones the repository
 - **THEN** no `topics/` content SHALL be present, and the hub SHALL render its empty state until the user creates topics
+
+### Requirement: Lessons and references rendered natively from MDX
+
+Lessons and references SHALL be authored as MDX files (`topics/{topic}/lessons/NNNN-*.mdx`, `topics/{topic}/reference/*.mdx`) and rendered **natively** by the hub — compiled at request time and displayed inside the hub's own layout and typography, not embedded in an iframe. Lessons SHALL use only a fixed, hub-provided component palette and SHALL NOT carry their own `<style>`, `<script>`, or `import`; interactivity (e.g. quizzes) SHALL be provided by hub components. File access SHALL be restricted to `topics/{topic}/lessons/` and `topics/{topic}/reference/`.
+
+#### Scenario: Lesson renders natively in the hub
+
+- **WHEN** the user opens a lesson through the hub
+- **THEN** the lesson SHALL render inside the hub layout with the hub's typography, and any quiz SHALL be interactive via the hub's quiz component — with no iframe
+
+#### Scenario: Path traversal is blocked
+
+- **WHEN** a request's slug or file parameter resolves outside `topics/`
+- **THEN** the hub SHALL reject the request and serve no content
+
+### Requirement: Graceful lesson rendering
+
+A malformed or failing lesson/reference SHALL NOT crash the hub or affect other lessons. When MDX compilation or rendering fails, the hub SHALL show a contained error message in place of that document and continue to serve every other page normally.
+
+#### Scenario: A broken lesson shows an error panel
+
+- **WHEN** a lesson's MDX fails to compile or render
+- **THEN** the hub SHALL display a friendly error panel for that lesson (not an HTTP 500), and all other lessons, references, and pages SHALL continue to render
+
+#### Scenario: Raw scripts do not execute
+
+- **WHEN** an MDX document contains a raw `<script>` or other raw HTML
+- **THEN** the hub SHALL NOT execute it (no raw-HTML passthrough); only the fixed component palette provides interactivity
 
