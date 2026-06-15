@@ -1,6 +1,6 @@
 # 0001 — Serve lessons verbatim in an iframe
 
-Status: accepted (2026-06-12)
+Status: **superseded by [ADR-0002](0002-render-lessons-natively-as-mdx.md) (2026-06-15)**. The "what would reverse this" clause below is exactly what happened: lessons were changed to a hub-rendered format, so the iframe boundary was removed.
 
 ## Context
 

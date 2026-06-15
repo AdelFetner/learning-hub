@@ -12,10 +12,10 @@ The user has asked you to teach them something. This is a stateful request - the
 Treat the current directory as a teaching workspace. The state of their learning is captured in this directory in several files:
 
 - `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
-- `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.
+- `./reference/*.mdx`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning, designed for quick reference. Same MDX format as lessons (see [Lessons](#lessons)).
 - `RESOURCES.md`: A list of resources which can be explored to ground your teaching in contextual knowledge, or to acquire knowledge and wisdom. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
 - `./learning-records/*.md`: A directory of learning records, which capture what the user has learned. These are loosely equivalent to architectural decision records in software development - they capture non-obvious lessons and key insights that may need to be revised later, or drive future sessions. These should be used to calculate the zone of proximal development. They are titled `0001-<dash-case-name>.md`, where the number increments each time. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
-- `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
+- `./lessons/*.mdx`: A directory of lessons. A **lesson** is a single MDX file that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace, rendered by the hub (see [Lessons](#lessons)).
 - `ANKI.md`: The workspace's Anki state - deck name, card provenance, pending cards, and the user's Anki preferences. Use the format in [ANKI-FORMAT.md](./ANKI-FORMAT.md).
 - `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
 
@@ -46,21 +46,65 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 
 ## Lessons
 
-A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` and titled `0001-<dash-case-name>.html` where the number increments each time.
-
-A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
+A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one **MDX** file, saved to `./lessons/` and titled `0001-<dash-case-name>.mdx` where the number increments each time. The **hub** (the Monimemo Next.js app) renders lessons natively — it owns the styling, so lessons are Markdown plus a small fixed set of components, **not** hand-written HTML/CSS.
 
 The lesson should be short, and completable very quickly. Learners' working memory is very small, and we need to stay within it. But each lesson should give the user a single tangible win that they can build on. It should be directly tied to the mission, and should be in the user's zone of proximal development.
 
-If possible, open the lesson file for the user by running a CLI command.
+It should recommend a primary source (the highest-trust resource you found), remind the user they can ask you follow-up questions, and end with the Anki cards created for it.
 
-Each lesson should link via HTML anchors to other lessons and reference documents.
+### MDX format
 
-Each lesson should recommend a primary source for the user to read or watch. This should be the most high-quality, high-trust resource you found on the topic.
+Start with YAML frontmatter, then Markdown body using **only** these components — no `<style>`, no `<script>`, no `import`, no raw HTML. Use string attributes only (MDX mangles object/array attribute values).
 
-Each lesson should contain a reminder to ask followup questions to the agent. The agent is their teacher, and can assist with anything that's unclear.
+```mdx
+---
+title: "The first digit tells you whose side to debug"   # required
+kicker: "Lesson 0001 · HTTP Status Codes"                # optional eyebrow
+summary: "One triage rule, five classes."                # optional, shown in listings
+minutes: 7                                               # optional
+---
 
-Each lesson should end with a **Cards from this lesson** section listing the Anki cards created for it, and a reminder that reviews happen in the Anki app (see [Spaced Repetition](#spaced-repetition-anki)).
+<Kicker>Lesson 0001 · HTTP Status Codes</Kicker>
+
+# The first digit tells you whose side to debug
+
+<Lede>One triage rule, five classes. ~7 minutes.</Lede>
+
+## A section
+
+Normal Markdown: **bold**, `code`, [links](/topics/{topic}/lessons/0002-next.mdx), and GFM tables.
+
+<Callout>Memory hook: 4 = you, 5 = them.</Callout>   {/* tone="warn" for a warning */}
+
+## Retrieval practice
+
+<Quiz>
+  <Q prompt="Plain-text question?" options="first|second|third" answer="1" explain="Why the answer is right." />
+</Quiz>
+
+## Cards from this lesson
+
+<Cards>
+  <Card front="Question on the card front" back="The answer" />
+</Cards>
+
+<Primary href="https://example.com" source="Source title">Optional note.</Primary>
+```
+
+Component reference:
+
+- `<Kicker>` — small eyebrow label above the title.
+- `<Lede>` — one-line italic subtitle.
+- `<Callout tone="note|warn">` — a highlighted aside (default `note`).
+- `<Quiz>` wraps `<Q prompt="..." options="a|b|c" answer="0" explain="..." />`. `options` is **pipe-delimited**; `answer` is the **0-based index** of the correct option. The prompt is plain text. Keep options the same length where possible (no formatting clues — same rule as below).
+- `<Cards>` wraps `<Card front="..." back="..." />` — one per Anki card created for the lesson.
+- `<Primary href="..." source="...">` — the recommended primary source.
+
+Cross-links to other lessons/references use hub paths: `/topics/{topic}/lessons/{file}.mdx` or `/topics/{topic}/references/{file}.mdx`.
+
+### Viewing lessons
+
+Lessons are viewed in the hub, not opened as files. The hub dev server must be running: if it isn't, tell the user to run `cd hub && npm run dev`, then give them the URL `http://localhost:3000/topics/{topic}/lessons/{file}.mdx`. (`{topic}` is the workspace folder name under `topics/`.) Reviews still happen in the Anki app (see [Spaced Repetition](#spaced-repetition-anki)).
 
 ## The Mission
 
@@ -130,7 +174,7 @@ If the Anki MCP server is reachable, read the workspace deck's state - due count
 
 ### Creating cards: with the lesson
 
-Cards are part of the lesson, not an afterthought. When you generate a lesson (or promote a term to the glossary), draft its cards in the same breath and add them to Anki immediately - no approval round. End every lesson HTML with a **Cards from this lesson** section listing them, plus a reminder that reviews happen in the Anki app. The user can ask to edit or remove any card at any time; honor that immediately and mirror it in `ANKI.md`.
+Cards are part of the lesson, not an afterthought. When you generate a lesson (or promote a term to the glossary), draft its cards in the same breath and add them to Anki immediately - no approval round. End every lesson with a **Cards from this lesson** section using `<Cards>`/`<Card>` (see [MDX format](#mdx-format)) listing them, plus a reminder that reviews happen in the Anki app. The user can ask to edit or remove any card at any time; honor that immediately and mirror it in `ANKI.md`.
 
 Card rules:
 

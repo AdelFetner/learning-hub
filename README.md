@@ -6,7 +6,7 @@ You tell the AI what you want to learn and *why*. It finds high-trust resources,
 
 ## Setup
 
-You need three things: Anki, one Anki add-on, and an AI coding agent. The walkthrough below uses [Claude Code](https://claude.com/claude-code), but the repo isn't tied to it — see [Using another AI agent](#using-another-ai-agent).
+You need Anki, one Anki add-on, an AI coding agent, and [Node.js](https://nodejs.org/) 20+ (to run **Monimemo**, the hub that renders your lessons). The walkthrough below uses [Claude Code](https://claude.com/claude-code), but the repo isn't tied to it — see [Using another AI agent](#using-another-ai-agent).
 
 1. **Install Anki** — version 25.07 or newer, from [apps.ankiweb.net](https://apps.ankiweb.net/). (Check yours in Anki under Help → About.)
 2. **Install the Anki MCP Server add-on**: in Anki, open **Tools → Add-ons → Get Add-ons…**, paste the code **`124672614`**, click OK, then **restart Anki**. That's it — the add-on runs automatically whenever Anki is open.
@@ -35,9 +35,11 @@ Then just say:
 /teach me how to solve a Rubik's cube
 ```
 
-The teacher will interview you about your mission, gather resources, and build your first lesson. Next session, run `/teach` again from the same folder — it picks up exactly where you left off. (Keeping topics under `topics/` is also what lets the optional [Monimemo](#browse-your-lessons-with-monimemo-optional) hub find them.)
+The teacher will interview you about your mission, gather resources, and build your first lesson. Next session, run `/teach` again from the same folder — it picks up exactly where you left off.
 
-Keep Anki open while you learn. Every lesson adds its flashcards to an Anki deck named after the topic — each topic gets its own separate deck — and lists them at the end of the lesson. Ask the teacher to edit or remove any card you don't like. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
+Lessons are written as MDX and **viewed in Monimemo**, the hub — so keep it running while you learn (`cd hub && npm run dev`, then open the lesson URL the teacher gives you). See [Viewing your lessons](#viewing-your-lessons-with-monimemo).
+
+Keep Anki open too. Every lesson adds its flashcards to an Anki deck named after the topic — each topic gets its own separate deck — and lists them at the end of the lesson. Ask the teacher to edit or remove any card you don't like. Review them in the Anki app whenever they come due (also on your phone, if you sync with [AnkiWeb](https://ankiweb.net/)).
 
 ## Using another AI agent
 
@@ -82,11 +84,9 @@ Everything else — formats, the card-approval flow, Anki state — is described
 
 </details>
 
-## Browse your lessons with Monimemo (optional)
+## Viewing your lessons with Monimemo
 
-Everything above works on its own — agent, HTML lessons, Anki. If you'd also like a pretty place to browse it all, the repo includes **Monimemo** — a small local web hub (Next.js) that reads your `topics/` folder and shows your topics, lessons, references, learning records, and live Anki review stats.
-
-It's entirely optional and additive: it lives in [`hub/`](hub/), needs [Node.js](https://nodejs.org/) 20 or newer, and changes nothing about the core workflow. Skip it and you lose nothing.
+**Monimemo** is the hub (a local Next.js app) that renders your lessons. Lessons are MDX, rendered natively by the hub — so the hub is how you read them. It also shows your topics, references, learning records, and live Anki review stats.
 
 ```bash
 cd hub
@@ -94,7 +94,7 @@ npm install     # first time only
 npm run dev
 ```
 
-Then open <http://localhost:3000>. It reads files live — new lessons appear on refresh, no rebuild. Keep Anki open to see review stats (it degrades gracefully to "Anki closed" otherwise). The hub is **read-only**: it never changes your lessons or your Anki cards.
+Then open <http://localhost:3000> and click into a topic, or go straight to a lesson at `http://localhost:3000/topics/{topic}/lessons/{file}.mdx`. It reads `topics/` live — new lessons appear on refresh, no rebuild. Keep Anki open to see review stats (it degrades gracefully to "Anki closed" otherwise). The hub is **read-only**: it never changes your lessons or your Anki cards. A lesson that fails to render shows an error panel and never takes down the rest of the hub.
 
 ## Troubleshooting
 
@@ -104,10 +104,10 @@ Then open <http://localhost:3000>. It reads files live — new lessons appear on
 
 ## How this repo is put together
 
-- `topics/` — **your learning lives here.** One folder per topic, each holding its mission, lessons, references, learning records, and Anki state. Created as you go (see [Learning something](#learning-something)); empty in a fresh clone.
+- `topics/` — **your learning lives here.** One folder per topic, each holding its mission, lessons (`.mdx`), references, learning records, and Anki state. Created as you go (see [Learning something](#learning-something)); git-ignored and empty in a fresh clone — your lessons are private.
 - `.agents/skills/teach/` — the teach skill (installed from [mattpocock/skills](https://github.com/mattpocock/skills)), customized here with a Spaced Repetition section and an [ANKI-FORMAT.md](.agents/skills/teach/ANKI-FORMAT.md). Note: because of this customization, `SKILL.md` no longer matches the hash in `skills-lock.json` — a future `skills.sh` update may flag or overwrite it.
 - `.claude/skills/` — pointer skills for Claude Code. Each is a real directory whose `SKILL.md` delegates to the canonical copy in `.agents/skills/` (real files instead of git symlinks, so Windows checkouts work without Developer Mode).
 - `AGENTS.md` / `CLAUDE.md` — cross-tool agent instructions; `CLAUDE.md` just imports `AGENTS.md` for Claude Code.
 - `.mcp.json`, `opencode.json`, `.codex/config.toml`, `.gemini/settings.json`, `.cursor/mcp.json`, `.vscode/mcp.json` — the same Anki MCP server (`http://127.0.0.1:3141/`, the add-on's local address) registered once per agent (see [Using another AI agent](#using-another-ai-agent)).
-- `hub/` — **Monimemo**, the optional local lesson-browser web app (Next.js). A read-only viewer over `topics/`; see [Browse your lessons with Monimemo](#browse-your-lessons-with-monimemo-optional). Not required for the core workflow.
+- `hub/` — **Monimemo**, the local Next.js app that renders your lessons (MDX) and browses `topics/`; read-only. See [Viewing your lessons](#viewing-your-lessons-with-monimemo). Needs Node 20+.
 - `openspec/` — the spec-driven change history of this repo, managed with [OpenSpec](https://github.com/Fission-AI/OpenSpec).

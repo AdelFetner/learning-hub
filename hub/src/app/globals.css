@@ -210,3 +210,26 @@
   color: var(--muted-foreground);
   font-style: italic;
 }
+
+/* Natively-rendered lesson/reference body (MDX). Width/rhythm only — element
+   styling is carried by the lesson component palette, so it never relies on
+   descendant selectors that could bleed into the interactive quiz island. */
+.lesson-prose {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* References are print-oriented; hide hub chrome when printing. */
+@media print {
+  aside,
+  header {
+    display: none !important;
+  }
+  .lesson-prose {
+    max-width: none;
+    padding: 0;
+  }
+  body {
+    background: #fff;
+  }
+}

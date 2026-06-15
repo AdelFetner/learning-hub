@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { listTopics } from "@/lib/content";
 import { NavLink } from "@/components/nav-link";
 import { AnkiPill, AnkiPillFallback } from "@/components/anki-pill";
@@ -7,9 +8,9 @@ export function Sidebar() {
   const topics = listTopics();
   return (
     <aside className="w-[235px] shrink-0 border-r border-border px-4 py-6">
-      <div className="px-2.5 text-[1.15rem]">
+      <Link href="/" className="block px-2.5 text-[1.15rem]">
         Moni<span className="italic text-primary">memo</span>
-      </div>
+      </Link>
 
       <nav className="mt-7 flex flex-col">
         <NavLink href="/" exact>

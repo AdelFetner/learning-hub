@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { marked } from "marked";
+import matter from "gray-matter";
 
 // The hub is a read-only viewer over the repo's `topics/` directory, which
 // sits one level up from `hub/`. Overridable for tests or unusual layouts.
@@ -86,21 +87,6 @@ function safeRead(file: string): string | null {
   }
 }
 
-function stripTags(s: string): string {
-  return s.replace(/<[^>]*>/g, "");
-}
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&mdash;/g, "—")
-    .replace(/&nbsp;/g, " ");
-}
-
 function humanize(filename: string): string {
   return filename
     .replace(/\.[^.]+$/, "")
@@ -115,19 +101,14 @@ function leadingNumber(filename: string): string | null {
   return m ? m[1] : null;
 }
 
-/** Display title for an HTML doc: first <h1>, then <title>, then filename. */
-function htmlTitle(content: string | null, filename: string): string {
-  if (content) {
-    const h1 = content.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-    if (h1) {
-      const t = decodeEntities(stripTags(h1[1])).replace(/\s+/g, " ").trim();
-      if (t) return t;
-    }
-    const title = content.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    if (title) {
-      const t = decodeEntities(stripTags(title[1])).replace(/\s+/g, " ").trim();
-      if (t) return t;
-    }
+/** Display title for an MDX doc: frontmatter `title`, then first heading, then filename. */
+function mdxTitle(raw: string | null, filename: string): string {
+  if (raw) {
+    const parsed = matter(raw);
+    const fmTitle = (parsed.data as { title?: unknown }).title;
+    if (typeof fmTitle === "string" && fmTitle.trim()) return fmTitle.trim();
+    const h = parsed.content.match(/^#\s+(.+)$/m);
+    if (h) return h[1].trim();
   }
   return humanize(filename);
 }
@@ -136,9 +117,9 @@ function md(src: string): string {
   return marked.parse(src, { async: false }) as string;
 }
 
-function listHtml(dir: string): DocRef[] {
+function listDocs(dir: string): DocRef[] {
   return safeReaddir(dir)
-    .filter((f) => f.toLowerCase().endsWith(".html"))
+    .filter((f) => f.toLowerCase().endsWith(".mdx"))
     .map((f) => {
       const full = path.join(dir, f);
       let mtimeMs = 0;
@@ -150,7 +131,7 @@ function listHtml(dir: string): DocRef[] {
       return {
         slug: f,
         number: leadingNumber(f),
-        title: htmlTitle(safeRead(full), f),
+        title: mdxTitle(safeRead(full), f),
         mtimeMs,
       };
     })
@@ -235,8 +216,8 @@ export function listTopics(): Topic[] {
         title: mission.title,
         summary: mission.summary,
         deck: parseDeck(dir),
-        lessonCount: listHtml(path.join(dir, "lessons")).length,
-        referenceCount: listHtml(path.join(dir, "reference")).length,
+        lessonCount: listDocs(path.join(dir, "lessons")).length,
+        referenceCount: listDocs(path.join(dir, "reference")).length,
         recordCount: parseRecords(dir).length,
       };
     })
@@ -249,8 +230,8 @@ export function getTopic(slug: string): TopicDetail | null {
   if (!dir || !fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) return null;
 
   const mission = parseMission(dir);
-  const lessons = listHtml(path.join(dir, "lessons"));
-  const references = listHtml(path.join(dir, "reference"));
+  const lessons = listDocs(path.join(dir, "lessons"));
+  const references = listDocs(path.join(dir, "reference"));
   const records = parseRecords(dir);
 
   return {
@@ -272,7 +253,7 @@ export function recentLessons(limit = 6): RecentLesson[] {
   const root = topicsRoot();
   const all: RecentLesson[] = [];
   for (const topic of listTopics()) {
-    for (const lesson of listHtml(path.join(root, topic.slug, "lessons"))) {
+    for (const lesson of listDocs(path.join(root, topic.slug, "lessons"))) {
       all.push({ ...lesson, topicSlug: topic.slug, topicTitle: topic.title });
     }
   }
@@ -280,9 +261,9 @@ export function recentLessons(limit = 6): RecentLesson[] {
 }
 
 /**
- * Resolve a lesson/reference HTML file for the raw route. `kind` is the
- * subdirectory ("lessons" or "reference"). Returns the absolute path only if
- * it is a real .html file safely inside the topic.
+ * Resolve a lesson/reference MDX file. `kind` is the subdirectory ("lessons"
+ * or "reference"). Returns the absolute path only if it is a real .mdx file
+ * safely inside the topic (path-traversal guarded by resolveWithin).
  */
 export function resolveDocFile(
   topic: string,
@@ -290,7 +271,7 @@ export function resolveDocFile(
   file: string
 ): string | null {
   if (kind !== "lessons" && kind !== "reference") return null;
-  if (!file.toLowerCase().endsWith(".html")) return null;
+  if (!file.toLowerCase().endsWith(".mdx")) return null;
   const abs = resolveWithin(topicsRoot(), topic, kind, file);
   if (!abs || !fs.existsSync(abs) || !fs.statSync(abs).isFile()) return null;
   return abs;
