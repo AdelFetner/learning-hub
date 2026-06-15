@@ -69,7 +69,7 @@
   --secondary-foreground: #221f1a;
 
   --muted: #f0ebdd;
-  --muted-foreground: #857d6e;
+  --muted-foreground: #645c4d; /* darkened from #857d6e to meet WCAG AA contrast on paper */
 
   --accent: #f0ebdd;
   --accent-foreground: #8c2d19;

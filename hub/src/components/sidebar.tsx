@@ -7,7 +7,7 @@ import { AnkiPill, AnkiPillFallback } from "@/components/anki-pill";
 export function Sidebar() {
   const topics = listTopics();
   return (
-    <aside className="w-[235px] shrink-0 border-r border-border px-4 py-6">
+    <aside className="w-full shrink-0 border-b border-border px-4 py-6 md:w-[235px] md:border-r md:border-b-0">
       <Link href="/" className="block px-2.5 text-[1.15rem]">
         Moni<span className="italic text-primary">memo</span>
       </Link>

@@ -4,10 +4,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
-  Children,
-  isValidElement,
   type ReactNode,
 } from "react";
 
@@ -18,23 +17,28 @@ import {
 //   <Quiz>
 //     <Q prompt="..." options="a|b|c" answer="1" explain="..." />
 //   </Quiz>
+//
+// Each <Q> registers with the surrounding <Quiz> on mount and reports its
+// result on answer, so the score summary doesn't depend on inspecting child
+// element types (fragile across the MDX/RSC boundary).
 
-type QuizCtx = { report: (correct: boolean) => void };
+type QuizCtx = { register: () => () => void; report: (correct: boolean) => void };
 const Ctx = createContext<QuizCtx | null>(null);
 
 export function Quiz({ children }: { children: ReactNode }) {
-  // Count only <Q> children (MDX inserts whitespace text nodes between them).
-  const total = Children.toArray(children).filter(
-    (c) => isValidElement(c) && c.type === Q
-  ).length;
+  const [total, setTotal] = useState(0);
   const [answered, setAnswered] = useState(0);
   const [correct, setCorrect] = useState(0);
 
+  const register = useCallback(() => {
+    setTotal((n) => n + 1);
+    return () => setTotal((n) => n - 1);
+  }, []);
   const report = useCallback((isCorrect: boolean) => {
     setAnswered((n) => n + 1);
     if (isCorrect) setCorrect((n) => n + 1);
   }, []);
-  const ctxValue = useMemo(() => ({ report }), [report]);
+  const ctxValue = useMemo(() => ({ register, report }), [register, report]);
 
   const done = total > 0 && answered === total;
 
@@ -72,6 +76,8 @@ export function Q({
   const ctx = useContext(Ctx);
   const [picked, setPicked] = useState<number | null>(null);
   const locked = picked !== null;
+
+  useEffect(() => ctx?.register(), [ctx]);
 
   const choose = (i: number) => {
     if (locked) return;
