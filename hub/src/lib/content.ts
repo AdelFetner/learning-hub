@@ -87,6 +87,17 @@ function safeRead(file: string): string | null {
   }
 }
 
+// Strip inline markdown so plain-text summaries (topic cards) don't show
+// raw `**bold**`, `_italic_`, `[links](url)`, or `code`.
+function stripMarkdown(s: string): string {
+  return s
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/(\*\*|__)(.*?)\1/g, "$2")
+    .replace(/(\*|_)(.*?)\1/g, "$2")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "");
+}
+
 function humanize(filename: string): string {
   return filename
     .replace(/\.[^.]+$/, "")
@@ -163,6 +174,7 @@ function parseMission(topicDir: string): { title: string; summary: string; html:
       .find((p) => p && !p.startsWith("#"));
     summary = para ? para.replace(/\s+/g, " ").trim() : "";
   }
+  summary = stripMarkdown(summary);
   if (summary.length > 260) summary = summary.slice(0, 257).trimEnd() + "…";
 
   return { title, summary, html: md(raw) };
