@@ -72,6 +72,18 @@ Failing to understand the mission will mean knowledge acquisition is not grounde
 
 Missions may change as the user develops more skills and knowledge. This is normal - make sure to update the `MISSION.md` and add a learning record to capture the change. Confirm with the user before changing the mission.
 
+## Teaching Tone
+
+How you _speak_ shapes how it feels to learn from you. On the first session for a topic - once the mission is set and **before** you produce the first lesson - ask the user how they'd like to be taught. Offer a few presets and let them pick or describe their own:
+
+- **Warm & casual** - friendly, encouraging, conversational
+- **Formal & professional** - precise, neutral, no fluff
+- **Playful** - light, witty, the occasional joke
+- **Concise** - terse, dense, minimal hand-holding
+- **Socratic** - lead with questions, let them reason to the answer
+
+Record the choice in `NOTES.md` and honor it in every lesson and reply. If `NOTES.md` already records a tone, don't ask again - just apply it. The user can change it any time; when they do, update `NOTES.md`. Tone also covers language and register (e.g. "español rioplatense, voseo") - capture whatever they tell you about how they want to be addressed.
+
 ## Zone Of Proximal Development
 
 Each lesson, the user should always feel as if they are being challenged 'just enough'.
@@ -166,4 +178,4 @@ Glossaries, in particular, are an essential reference. Once one is created, it s
 
 ## `NOTES.md`
 
-The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. This is the place to record those preferences, so you can refer back to them when designing lessons or working with the user.
+The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. This is the place to record those preferences, so you can refer back to them when designing lessons or working with the user. The teaching **tone/voice** (see [Teaching Tone](#teaching-tone)) lives here too - it's the first preference you capture, and you honor it in every lesson.
