@@ -17,7 +17,8 @@ A topic's projection into Anki — a single top-level Anki deck named after the 
 _Avoid_: collection (that is Anki's word for all decks together)
 
 **Lesson**:
-One self-contained HTML file under a topic's `lessons/`, teaching one tightly-scoped thing. The primary unit of teaching. Numbered `NNNN`.
+One MDX file under a topic's `lessons/`, teaching one tightly-scoped thing — Markdown plus a fixed component palette, rendered natively by the hub (it owns the styling). The primary unit of teaching. Numbered `NNNN`.
+_Avoid_: calling lessons "HTML" — that was the pre-MDX format (see [ADR-0002](docs/adr/0002-render-lessons-natively-as-mdx.md)).
 
 **Mission**:
 The reason the learner is pursuing a topic; one per topic, in `MISSION.md`. Grounds every teaching decision.

@@ -2,7 +2,9 @@
 .claude/settings.local.json
 
 # User learning data — private; the repo ships the product, not anyone's lessons.
-topics/
+# Anchored to the repo root: an unanchored `topics/` also matches the hub's
+# `hub/src/app/topics/` route directory and silently drops its source files.
+/topics/
 
 # OS / editor cruft
 .DS_Store
